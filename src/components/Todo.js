@@ -7,7 +7,7 @@ import { IoTrashOutline } from "react-icons/io5";
 import React from "react";
 import { useState } from "react";
 
-const Todo = ({ todo, title, onRemove, checkBox }) => {
+const Todo = ({ id, title, onRemove, checkBox }) => {
   // check state
   const [check, setCheck] = useState(false);
   // mouseOver state
@@ -33,7 +33,7 @@ const Todo = ({ todo, title, onRemove, checkBox }) => {
         )}
         <TodoName chk={check}>{title}</TodoName>
       </Checkbox>
-      <Trashcan onClick={() => onRemove(todo.id, check)}>
+      <Trashcan onClick={() => onRemove(id, check)}>
         {mouseOver ? <IoTrashOutline size="25" color="#D06363" /> : <></>}
       </Trashcan>
     </Container>
