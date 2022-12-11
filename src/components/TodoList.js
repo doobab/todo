@@ -1,25 +1,12 @@
 import Todo from "./Todo";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 
 // todos 배열을 map을 이용해서..
 const TodoList = ({ todos, onRemove, checkBox }) => {
-  const [state, setState] = useState({
-    todoList: [],
-  });
-
-  useEffect(() => {
-    async function fetchData() {
-      const { data } = await axios.get("http://localhost:8000/list", {});
-      setState((state) => (state.todoList = data));
-    }
-    fetchData();
-  }, []);
-
-  if (state.length > 0) {
+  if (todos.length > 0) {
     return (
       <>
-        {state.map((todo) => {
+        {todos.map((todo) => {
           return (
             <Todo
               key={todo.TODO_ID}
