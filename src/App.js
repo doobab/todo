@@ -17,37 +17,44 @@ function App() {
   const [num, setNum] = useState(0);
   // maxNum: todo 수
   const [maxNum, setMaxNum] = useState(0);
+  async function countCheck() {
+    const { data } = await axios.get("http://localhost:8000/countCheck", {});
+    setNum((num) => (num = data[0]["COUNT(*)"]));
+  }
+  async function countTodo() {
+    const { data } = await axios.get("http://localhost:8000/countTodo", {});
+    setMaxNum((maxNum) => (maxNum = data[0]["COUNT(*)"]));
+  }
+  async function fetchData() {
+    const { data } = await axios.get("http://localhost:8000/list", {});
+    setTodos((todo) => (todo.todoList = data));
+  }
   useEffect(() => {
-    async function fetchData() {
-      const { data } = await axios.get("http://localhost:8000/list", {});
-      setTodos((todo) => (todo.todoList = data));
-    }
-    async function countCheck() {
-      const { data } = await axios.get("http://localhost:8000/countCheck", {});
-      setNum((num) => (num = data[0]["COUNT(*)"]));
-    }
-    async function countTodo() {
-      const { data } = await axios.get("http://localhost:8000/countTodo", {});
-      setMaxNum((maxNum) => (maxNum = data[0]["COUNT(*)"]));
-    }
     fetchData();
     countCheck();
     countTodo();
   }, []);
-
+  async function getId() {
+    const { data } = await axios.get("http://localhost:8000/getId", {});
+    return data[0]["max(TODO_ID)+1"];
+  }
   // id 부여를 위한 ref
-  const nextId = useRef(1);
+  const nextId = useRef(getId());
 
   // todo 삭제 이벤트
-  const onRemove = useCallback((id, check) => {
+  const onRemove = useCallback((id) => {
+    // id에 해당하는 todo 제거
+    setTodos((todos) => todos.filter((todo) => todo.id !== id));
+    axios.delete("http://localhost:8000/deleteTodo", {
+      data: {
+        // 서버에서 req.body.{} 로 확인할 수 있다.
+        id: id,
+      },
+      withCredentials: false,
+    });
     // todo 삭제 -> maxNum - 1
     setMaxNum((maxNum) => (maxNum -= 1));
-    // check가 되어 있다면 num - 1
-    if (check === true) {
-      setNum((num) => (num -= 1));
-    }
-    // id에 해당하는 todo 제거
-    setTodos((todos) => todos.filter((todos) => todos.id !== id));
+    countCheck();
   }, []);
 
   // todo 생성
