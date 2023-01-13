@@ -7,16 +7,13 @@ import { IoTrashOutline } from "react-icons/io5";
 import React from "react";
 import { useState } from "react";
 
-const Todo = ({ id, title, onRemove, checkBox }) => {
-  // check state
-  const [check, setCheck] = useState(false);
+const Todo = ({ id, title, check, onRemove, onCheck }) => {
   // mouseOver state
   const [mouseOver, setMouseOver] = useState(false);
 
   // check에 변화가 생겼을 때 이벤트
   const onClickforCheck = () => {
-    setCheck(!check);
-    checkBox(check);
+    onCheck(id);
   };
 
   return (

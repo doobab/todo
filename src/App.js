@@ -1,100 +1,18 @@
 import styled from "styled-components";
-import { useState, useRef, useCallback, useEffect } from "react";
-import axios from "axios";
 import Container from "./components/Container";
-import TodoList from "./components/TodoList";
-import TopBar from "./components/TopBar";
-import Input from "./components/Input";
+import InputContainer from "./containers/InputContainer";
+import TodoContainer from "./containers/TodoContainer";
+import TopBarContainer from "./containers/TopBarContainer";
 
 function App() {
-  // 처음 상태 초기화
-  // todo 배열
-  const [todos, setTodos] = useState({
-    todoList: [],
-  });
-  // 진행도 계산을 위한 state
-  // num: check된 todo 수
-  const [num, setNum] = useState(0);
-  // maxNum: todo 수
-  const [maxNum, setMaxNum] = useState(0);
-  async function countCheck() {
-    const { data } = await axios.get("http://localhost:8000/countCheck", {});
-    setNum((num) => (num = data[0]["COUNT(*)"]));
-  }
-  async function countTodo() {
-    const { data } = await axios.get("http://localhost:8000/countTodo", {});
-    setMaxNum((maxNum) => (maxNum = data[0]["COUNT(*)"]));
-  }
-  async function fetchData() {
-    const { data } = await axios.get("http://localhost:8000/list", {});
-    setTodos((todo) => (todo.todoList = data));
-  }
-  useEffect(() => {
-    fetchData();
-    countCheck();
-    countTodo();
-  }, []);
-  async function getId() {
-    const { data } = await axios.get("http://localhost:8000/getId", {});
-    return data[0]["max(TODO_ID)+1"];
-  }
-  // id 부여를 위한 ref
-  const nextId = useRef(getId());
-
-  // todo 삭제 이벤트
-  const onRemove = useCallback((id) => {
-    // id에 해당하는 todo 제거
-    setTodos((todos) => todos.filter((todo) => todo.id !== id));
-    axios.delete("http://localhost:8000/deleteTodo", {
-      data: {
-        // 서버에서 req.body.{} 로 확인할 수 있다.
-        id: id,
-      },
-      withCredentials: false,
-    });
-    // todo 삭제 -> maxNum - 1
-    setMaxNum((maxNum) => (maxNum -= 1));
-    countCheck();
-  }, []);
-
-  // todo 생성
-  const onCreate = useCallback((title) => {
-    const tmp = {
-      id: nextId.current,
-      title,
-    };
-    // todos에 추가
-    setTodos((todos) => todos.concat(tmp));
-    // id + 1
-    nextId.current += 1;
-    // maxNum + 1
-    setMaxNum((maxNum) => (maxNum += 1));
-  }, []);
-
-  // todo check 했을 때
-  const checkBox = useCallback((check) => {
-    // check가 안 되어있던 상태(check를 할 때)라면 num + 1
-    if (check === false) {
-      setNum((num) => (num += 1));
-    }
-    // check가 되어있던 상태(check를 해제 할 때)라면 num - 1
-    else {
-      setNum((num) => (num -= 1));
-    }
-  }, []);
-
-  const dealt = useCallback(() => {
-    return maxNum !== 0 ? Math.round((num / maxNum) * 100) + "%" : "0%";
-  }, [num, maxNum]);
-
   return (
     <Background>
       <Container>
-        <TopBar dealt={dealt} />
-        <TodoContainer>
-          <TodoList todos={todos} onRemove={onRemove} checkBox={checkBox} />
-        </TodoContainer>
-        <Input onCreate={onCreate} />
+        <TopBarContainer />
+        <TodoOutContainer>
+          <TodoContainer />
+        </TodoOutContainer>
+        <InputContainer />
       </Container>
     </Background>
   );
@@ -112,7 +30,7 @@ const Background = styled.div`
   height: 100%;
   overflow: auto;
 `;
-const TodoContainer = styled.div`
+const TodoOutContainer = styled.div`
   width: 100%;
   overflow-y: auto;
 `;

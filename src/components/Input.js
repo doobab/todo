@@ -16,6 +16,7 @@ const Input = ({ onCreate }) => {
 
   // 제출할 때 이벤트: 입력 공백일 때 메세지
   const onSubmit = (e) => {
+    e.preventDefault();
     if (value === "") {
       setMessage("입력해주세요.");
     } else {
@@ -23,7 +24,6 @@ const Input = ({ onCreate }) => {
       onCreate(value);
       setValue("");
     }
-    e.preventDefault();
   };
 
   return (
